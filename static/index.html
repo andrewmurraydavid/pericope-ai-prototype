@@ -1,126 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="font-family: sans-serif">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pericope Prototype</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App</title>
-</head>
-
-<body>
-  <input type="text" id="inputField" oninput="debounce(fetchPrediction, 800)()" style="
-    width: 600px;
-    height: 30px;
-    border: 1px solid #467f3b;
-    border-radius: 8px;
-    padding: 8px;
-    margin: 8px;
-    font-size: 16px;
-    outline: 1px solid #467f3b;
-    "
-    placeholder="Enter a story name..."
+  <body style="display: flex; flex-direction: column; align-items: center">
+    <div
+      id="selectedPericopes"
+      style="
+        margin-bottom: 8px;
+        margin-top: 16px;
+        font-size: large;
+        width: 616px;
+      "
     >
-  <div id="dropdown"></div>
+      Stories to translate:
+    </div>
+    <input
+      type="text"
+      id="inputField"
+      oninput="fetchPrediction()"
+      style="
+        width: 600px;
+        height: 30px;
+        border: 1px solid #467f3b;
+        border-radius: 8px;
+        padding: 8px;
+        margin: 8px;
+        font-size: 16px;
+        outline: 1px solid #467f3b;
+      "
+      placeholder="Enter a story name..."
+    />
+    <div id="dropdown"></div>
 
-  <script>
-    function debounce(func, wait = 200, immediate = true) {
-      var timeout;
-      return function() {
-        var context = this,
-          args = arguments;
-        var later = function() {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
+    <script>
+      const debouncedFetchPrediction = debounce(fetchPrediction, 200, true);
+
+      function debounce(func, wait = 200, immediate = true) {
+        var timeout;
+        return function () {
+          var context = this,
+            args = arguments;
+          var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+          var callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
         };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-      };
-    };
+      }
 
-    function fetchPrediction() {
-      const inputField = document.getElementById('inputField');
-      const dropdown = document.getElementById('dropdown');
+      function updateSelectedPericopes(item) {
+        return function (event) {
+          const selectedCheckboxes = document.querySelectorAll(
+            '#dropdown input[type="checkbox"]:checked'
+          );
+          const pericopes = Array.from(selectedCheckboxes).map((checkbox) => {
+            const label = checkbox.nextSibling; // two siblings away from the checkbox
+            const pericopeDiv = label.firstChild; // first child of the label
+            return pericopeDiv.innerText;
+          });
 
-      if (inputField.value) {
-        if (inputField.value.split(' ').length < 2) {
-          dropdown.innerHTML = 'You need to enter at least 2 words.';
-          return;
-        }
+          const selectedPericopesDiv =
+            document.getElementById("selectedPericopes");
+          selectedPericopesDiv.innerHTML =
+            "Stories to translate: " + pericopes.join(", ");
+        };
+      }
 
-        fetch('/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ "input": inputField.value })
-        })
-          .then(response => response.json())
-          .then(data => {
-            // the data is an array of objects, iterate over it
-            dropdown.innerHTML = '';
-            data.forEach(item => {
-              // create a new div element
-              const div = document.createElement('div');
-              div.style = `
-                display: flex;
-                justify-content: space-between;
-                width: 600px;
-                padding: 8px;
-                border: 1px solid #467f3b;
-                border-radius: 8px;
-                margin: 8px;
+      function fetchPrediction() {
+        const inputField = document.getElementById("inputField");
+        const dropdown = document.getElementById("dropdown");
+        const selectedPericopesDiv =
+          document.getElementById("selectedPericopes");
 
-                /* put border on the bottom of the last element */
-                ${data.indexOf(item) !== data.length - 1 ? `
+        if (inputField.value) {
+          if (inputField.value.trim().split(" ").length < 2) {
+            dropdown.innerHTML = "You need to enter at least 2 words.";
+            selectedPericopesDiv.innerHTML = "Stories to translate: ";
+            return;
+          }
+
+          fetch("/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ input: inputField.value }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              dropdown.innerHTML = "";
+              selectedPericopesDiv.innerHTML = "Stories to translate: ";
+              data.forEach((item) => {
+                // create a new div element
+                const div = document.createElement("div");
+                div.style = `
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  width: 600px;
+                  padding: 8px;
+                  border: 1px solid #467f3b;
+                  border-radius: 8px;
+                  margin: 8px;
+
+                ${
+                  data.indexOf(item) !== data.length - 1
+                    ? `
                   border-bottom: none;
                   margin-bottom: 0;
                   border-bottom-left-radius: 0;
                   border-bottom-right-radius: 0;
-                  ` : ''}
-
-                /* put border on the top of the first element */
-                ${data.indexOf(item) !== 0 ? `
+                  `
+                    : ""
+                }
+                ${
+                  data.indexOf(item) !== 0
+                    ? `
                   border-top: none;
                   margin-top: 0;
                   border-top-left-radius: 0;
                   border-top-right-radius: 0;
-
-                  ` : ''}
+                  `
+                    : ""
+                }
+                ${
+                  data.indexOf(item) % 2 === 1
+                    ? "background-color: #f2f2f2;"
+                    : ""
+                }
 
               `;
-              const distance = item.distance.toFixed(3);
+                const distance = item.distance.toFixed(3);
 
-              const checkbox = document.createElement('input');
-              checkbox.type = 'checkbox';
-              checkbox.id = item.id;
-              checkbox.value = item.id;
-              checkbox.style = 'margin-right: 10px;';
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = item.id;
+                checkbox.value = item.id;
+                checkbox.style =
+                  "display: flex; flex-shrink: 0; margin-right: 10px; height: 20px; width: 20px;";
 
-              const refDiv = document.createElement('div')
-              refDiv.style = 'display:flex; justify-content: flex-start; width: 180px; font-size: 14px; padding-right: 10px;';
-              const pericopeDiv = document.createElement('div')
-              pericopeDiv.style = 'display:flex; justify-content: flex-start; width: 400px; font-weight: bold; padding-right: 10px;';
-              const distanceDiv = document.createElement('div')
-              distanceDiv.style = 'display:flex; justify-content: flex-end; width: 100px; font-size: 12px; color: grey;';
+                const label = document.createElement("label");
+                label.htmlFor = item.id;
+                label.style =
+                  "display: flex; width: 100%; flex: 1; justify-content: space-between; align-items: center;";
 
-              refDiv.innerHTML = item.metadata.reference;
-              pericopeDiv.innerHTML = item.pericope;
-              distanceDiv.innerHTML = `Dist: ${distance}`;
+                const refDiv = document.createElement("div");
+                refDiv.style =
+                  "display:flex; justify-content: flex-start; width: 180px; font-size: 12px; padding-right: 10px;";
+                const pericopeDiv = document.createElement("div");
+                pericopeDiv.style =
+                  "display:flex; justify-content: flex-start; flex-direction: column; padding-right: 10px; width: 100%; font-size: 16px;";
 
-              div.append(checkbox, refDiv, pericopeDiv, distanceDiv)
-              // append the div to the dropdown
-              dropdown.appendChild(div);
+                const distanceDiv = document.createElement("div");
+                distanceDiv.style =
+                  "display:flex; justify-content: flex-end; width: 100px; font-size: 12px; color: grey;";
+
+                refDiv.innerHTML = item.metadata.reference;
+                pericopeDiv.innerHTML = item.pericope;
+                pericopeDiv.appendChild(refDiv);
+
+                distanceDiv.innerHTML = `Dist: ${distance}`;
+
+                checkbox.addEventListener(
+                  "change",
+                  updateSelectedPericopes(item)
+                );
+
+                label.append(pericopeDiv, distanceDiv);
+
+                div.append(checkbox, label);
+                dropdown.appendChild(div);
+              });
             });
-
-            
-          });
-      } else {
-        dropdown.innerHTML = '';
+        }
       }
-    }
-  </script>
-</body>
-
+    </script>
+  </body>
 </html>

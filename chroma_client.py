@@ -5,9 +5,9 @@ import os
 CHROMA_HOST = os.environ.get('CHROMA_HOST', 'localhost')
 CHROMA_PORT = int(os.environ.get('CHROMA_PORT', '8000'))
 CHROMA_SSL = int(os.environ.get('CHROMA_SSL', '0')) == 1
-MODEl_NAME = os.environ.get('MODEL_NAME', 'all-distilroberta-v1')
+MODEL_NAME = os.environ.get('MODEL_NAME', 'all-distilroberta-v1')
 
-print("ChromaDB client configuration:", CHROMA_HOST, CHROMA_PORT, CHROMA_SSL, MODEl_NAME)
+print("ChromaDB client configuration:", CHROMA_HOST, CHROMA_PORT, CHROMA_SSL, MODEL_NAME)
 
 
 class ChromaClient:
@@ -23,7 +23,7 @@ class ChromaClient:
         print("Initializing ChromaDB client...")
         self.client = chromadb.HttpClient(host=CHROMA_HOST, port=443, ssl=True)
         sentence_transformer_ef = SentenceTransformerEmbeddingFunction(
-            model_name='all-distilroberta-v1'
+            model_name=MODEL_NAME
         )
         self.collection = self.client.get_collection("bible_pericopes-v2", embedding_function=sentence_transformer_ef)
 

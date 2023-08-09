@@ -12,7 +12,7 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
-    matched_pericopes = chroma_client.query(data['input'], n=10)  # or any desired n
+    matched_pericopes = chroma_client.query(data['input'], n=20)  # or any desired n
     # process and return results as needed
     array_of_objects = [{ 'id': id_val, "pericope": meta['pericope'], 'distance': dist, 'metadata': { "pericope": meta['pericope'], "reference": meta['reference'], "start": meta['start'], "end": meta['end'] } }
         for id_list, dist_list, meta_list in zip(matched_pericopes['ids'], matched_pericopes['distances'], matched_pericopes['metadatas'])
