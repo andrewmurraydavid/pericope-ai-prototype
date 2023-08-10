@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" style="font-family: sans-serif">
+<html lang="en" style="font-family: sans-serif; padding: 16px;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pericope Prototype</title>
   </head>
 
-  <body style="display: flex; flex-direction: column; align-items: center">
+  <body style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin: 0 auto;">
     <div
       id="selectedPericopes"
       style="
         margin-bottom: 8px;
         margin-top: 16px;
         font-size: large;
-        width: 616px;
+        max-width: 616px;
+        width: 100%;
+        padding: 0;
+        box-sizing: border-box;
       "
     >
       Stories to translate:
@@ -23,18 +26,18 @@
       id="inputField"
       oninput="fetchPrediction()"
       style="
-        width: 600px;
+        max-width: 600px;
+        width: 100%;
         height: 30px;
         border: 1px solid #467f3b;
         border-radius: 8px;
-        padding: 8px;
-        margin: 8px;
+        padding: 4px;
         font-size: 16px;
         outline: 1px solid #467f3b;
       "
       placeholder="Enter a story name..."
     />
-    <div id="dropdown"></div>
+    <div id="dropdown" style="display: flex; flex-direction: column; width: 100%; margin-top: 8px;"></div>
 
     <script>
       const debouncedFetchPrediction = debounce(fetchPrediction, 200, true);
@@ -104,17 +107,17 @@
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
-                  width: 600px;
+                  max-width: 600px;
+                  width: 100%;
                   padding: 8px;
                   border: 1px solid #467f3b;
                   border-radius: 8px;
-                  margin: 8px;
+                  box-sizing: border-box;
 
                 ${
                   data.indexOf(item) !== data.length - 1
                     ? `
                   border-bottom: none;
-                  margin-bottom: 0;
                   border-bottom-left-radius: 0;
                   border-bottom-right-radius: 0;
                   `
@@ -124,7 +127,6 @@
                   data.indexOf(item) !== 0
                     ? `
                   border-top: none;
-                  margin-top: 0;
                   border-top-left-radius: 0;
                   border-top-right-radius: 0;
                   `
@@ -144,7 +146,7 @@
                 checkbox.id = item.id;
                 checkbox.value = item.id;
                 checkbox.style =
-                  "display: flex; flex-shrink: 0; margin-right: 10px; height: 20px; width: 20px;";
+                  "display: flex; flex-shrink: 0; height: 20px; width: 20px; margin-right: 8px;";
 
                 const label = document.createElement("label");
                 label.htmlFor = item.id;
@@ -153,10 +155,10 @@
 
                 const refDiv = document.createElement("div");
                 refDiv.style =
-                  "display:flex; justify-content: flex-start; width: 180px; font-size: 12px; padding-right: 10px;";
+                  "display:flex; justify-content: flex-start; width: 180px; font-size: 12px;";
                 const pericopeDiv = document.createElement("div");
                 pericopeDiv.style =
-                  "display:flex; justify-content: flex-start; flex-direction: column; padding-right: 10px; width: 100%; font-size: 16px;";
+                  "display:flex; justify-content: flex-start; flex-direction: column; width: 100%; font-size: 16px;";
 
                 const distanceDiv = document.createElement("div");
                 distanceDiv.style =
