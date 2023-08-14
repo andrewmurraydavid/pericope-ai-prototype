@@ -12,6 +12,14 @@ CHROMA_SSL = int(os.environ.get('CHROMA_SSL', '0')) == 1
 MODEL_NAME = os.environ.get('MODEL_NAME', 'all-distilroberta-v1')
 COLLECTION = os.environ.get('COLLECTION_NAME', 'test-collection')
 
+if MODEL_NAME.startswith('./'):
+    MODEL_NAME = os.path.join(os.getcwd(), MODEL_NAME)
+    MODEL_NAME = os.path.abspath(MODEL_NAME)
+    print("Model path:", MODEL_NAME)
+    if not os.path.exists(MODEL_NAME):
+        print("Model not found:", MODEL_NAME)
+        exit()
+
 print("ChromaDB client configuration:", CHROMA_HOST, CHROMA_PORT, CHROMA_SSL, MODEL_NAME, COLLECTION)
 
 
@@ -30,6 +38,9 @@ class ChromaClient:
         sentence_transformer_ef = SentenceTransformerEmbeddingFunction(
             model_name=MODEL_NAME
         )
+        temp_model = sentence_transformer_ef.models[MODEL_NAME]
+        print(temp_model)
+        print(temp_model.tokenizer.name_or_path)
         self.collection = self.client.get_collection(COLLECTION, embedding_function=sentence_transformer_ef)
 
     def query(self, story_name, desired_results=10, max_attempts=10):
