@@ -1,4 +1,0 @@
-Flask==2.3.2
-sentence-transformers==2.2.2
-chromadb-client==0.4.5.dev0
-pydantic>=1.4.0,<2
