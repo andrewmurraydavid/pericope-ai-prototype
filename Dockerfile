@@ -24,13 +24,18 @@ COPY . /app
 COPY models /app/models
 
 # List the contents of /app/models
-RUN ls -la /app/models
+RUN ls -la /app/models/all-distilroberta-v1
 
 # Install git-lfs
 RUN apt-get update && apt-get install -y git-lfs
 
 # RUN git lfs install
 RUN git lfs pull --include="models/all-distilroberta-v1/*"
+
+COPY models /app/models
+
+# List the contents of /app/models
+RUN ls -la /app/models/all-distilroberta-v1
 
 # Install Flask and any other dependencies
 RUN pip install --no-cache-dir -r requirements.txt
