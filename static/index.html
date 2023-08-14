@@ -1,12 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" style="font-family: sans-serif; padding: 16px;">
+<html lang="en" style="font-family: sans-serif; padding: 16px">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pericope Prototype</title>
   </head>
 
-  <body style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin: 0 auto;">
+  <body
+    style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    "
+  >
     <div
       id="selectedPericopes"
       style="
@@ -37,7 +46,15 @@
       "
       placeholder="Enter a story name..."
     />
-    <div id="dropdown" style="display: flex; flex-direction: column; width: 100%; margin-top: 8px;"></div>
+    <div
+      id="dropdown"
+      style="
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 8px;
+      "
+    ></div>
 
     <script>
       const debouncedFetchPrediction = debounce(fetchPrediction, 200, true);
@@ -74,6 +91,12 @@
           selectedPericopesDiv.innerHTML =
             "Stories to translate: " + pericopes.join(", ");
         };
+      }
+
+      const feedbackHandler = (item, query) => {
+        return (event) => {
+          console.log(item, query);
+        }
       }
 
       function fetchPrediction() {
@@ -177,12 +200,53 @@
 
                 label.append(pericopeDiv, distanceDiv);
 
-                div.append(checkbox, label);
+                // <i data-lucide-name="thumbs-up"></i>
+                const iconContainer = document.createElement("div");
+                const icon = document.createElement("i");
+                icon.setAttribute("data-lucide", "thumbs-up");
+                icon.setAttribute("style", `
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  width: 24px;
+                  height: 24px;
+                  color: #467f3b;
+                  cursor: pointer;
+                  margin-left: 16px;
+                `);
+
+                iconContainer.appendChild(icon);
+                
+                iconContainer.addEventListener("click", () => {
+                  // console.log(item, inputField.value);
+                  fetch("/feedback", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ query: inputField.value, uid: item.uuid, feedback: "positive" }),
+                  })
+                    .then((response) => response.json())
+                    .then((data) => {
+                      if (data && data.status === "OK") {
+                        console.log("Feedback sent");
+                        fetchPrediction();
+                      }
+                    });
+                });
+
+                div.append(checkbox, label, iconContainer);
                 dropdown.appendChild(div);
+                lucide.createIcons();
               });
             });
         }
       }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
     </script>
   </body>
 </html>

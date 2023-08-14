@@ -12,13 +12,25 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
-    matched_pericopes = chroma_client.query(data['input'], n=20)  # or any desired n
-    # process and return results as needed
-    array_of_objects = [{ 'id': id_val, "pericope": meta['pericope'], 'distance': dist, 'metadata': { "pericope": meta['pericope'], "reference": meta['reference'], "start": meta['start'], "end": meta['end'] } }
-        for id_list, dist_list, meta_list in zip(matched_pericopes['ids'], matched_pericopes['distances'], matched_pericopes['metadatas'])
-        for id_val, dist, meta in zip(id_list, dist_list, meta_list)
-    ]
-    return jsonify(array_of_objects)
+    matched_pericopes = chroma_client.query(data['input'], 20)  # or any desired n
+
+    return jsonify(matched_pericopes)
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.json
+    query = data['query']
+    uid = data['uid']
+    _feedback = data['feedback']
+
+    if _feedback == 'positive':
+        chroma_client.reinforce_document_with_query(query, uid)
+    elif _feedback == 'negative':
+        # TODO: implement negative feedback
+        pass
+
+    return jsonify({'status': 'OK'})
+
 
 @app.route('/healthcheck')
 def healthcheck():

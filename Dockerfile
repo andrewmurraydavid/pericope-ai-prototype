@@ -10,6 +10,10 @@ COPY . /app
 # Install Flask and any other dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+
+# Download all the required model files to make app boot faster
+RUN python initialize-model.py
+
 # Make port 5000 available to the outside world
 EXPOSE 5000
 
