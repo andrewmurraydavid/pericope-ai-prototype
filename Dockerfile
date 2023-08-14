@@ -30,7 +30,7 @@ RUN ls -la /app/models/all-distilroberta-v1
 RUN apt-get update && apt-get install -y git-lfs
 
 # RUN git lfs install
-RUN git lfs pull --include="models/all-distilroberta-v1/*"
+RUN git lfs pull
 
 COPY models /app/models
 
