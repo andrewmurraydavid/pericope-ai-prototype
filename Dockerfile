@@ -25,12 +25,12 @@ COPY . /app
 # Install Flask and any other dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Comment these out until we know how to get the model files into the container
+# # Download all the required model files to make app boot faster
+# RUN python initialize-model.py
 
-# Download all the required model files to make app boot faster
-RUN python initialize-model.py
-
-# recopy the current directory to the container at /app
-COPY . /app
+# # recopy the current directory to the container at /app
+# COPY . /app
 
 # Make port 5000 available to the outside world
 EXPOSE 5000
