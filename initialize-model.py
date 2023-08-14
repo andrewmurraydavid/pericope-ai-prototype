@@ -4,4 +4,4 @@ chroma_client.init_chroma()
 
 
 if __name__ == '__main__':
-    print(chroma_client.count())
+    print("Initialized ChromaDB model and downloaded model files.")
